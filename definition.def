@@ -1,0 +1,34 @@
+BootStrap: docker
+From: julia
+
+
+%post
+	echo "updating repositories and installing necessary packages"
+	apt-get -y update
+	apt-get -y upgrade
+	apt-get -y install pciutils gcc wget sudo lsb-base lsb-release software-properties-common
+	
+	# https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#pre-installation-actions
+	echo "Preparing to install CUDA drivers"
+	echo "Beginning pre-installation steps"
+	echo "Verify if CUDA-Capable GPU is available"
+	lspci | grep -i nvidia
+	echo "Verify supported version of Linux is installed"
+	uname -m && cat /etc/*release
+	echo "Verify system has gcc installed"
+	gcc --version
+	echo "Verify the system has the correct kernel headers and development packages installed"
+	uname -r
+
+	# https://developer.nvidia.com/cuda-downloads?target_os=Linux&target_arch=x86_64&Distribution=Debian&target_version=12&target_type=deb_local
+
+	echo "Install the repository meta-data, remove old GPG key, install GPG key, update the apt-get cache, and install CUDA:"
+	wget https://developer.download.nvidia.com/compute/cuda/12.5.1/local_installers/cuda-repo-debian12-12-5-local_12.5.1-555.42.06-1_amd64.deb
+	sudo dpkg -i cuda-repo-debian12-12-5-local_12.5.1-555.42.06-1_amd64.deb
+	sudo cp /var/cuda-repo-debian12-12-5-local/cuda-*-keyring.gpg /usr/share/keyrings/
+	sudo add-apt-repository -y contrib
+	sudo apt-get update
+	sudo apt-get -y install cuda-toolkit-12-5	
+	
+	#echo "Install Nvidia drivers"
+	#sudo apt-get install -y cuda-drivers
